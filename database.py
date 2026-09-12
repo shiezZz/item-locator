@@ -137,3 +137,15 @@ def get_all_items(user_id: int):
     rows = cur.fetchall()
     conn.close()
     return rows
+
+def delete_item(item_id: int, user_id: int) -> bool:
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "DELETE FROM items where id = ? AND user_id = ?",
+        (item_id, user_id),
+    ) 
+    conn.commit()
+    conn.close()
+    return True
+

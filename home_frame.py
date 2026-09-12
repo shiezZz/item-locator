@@ -4,7 +4,7 @@ home_frame.py
 
 import customtkinter as ctk
 from add_item_modal import AddItemModal
-from database import get_all_items
+from database import get_all_items, delete_item
 
 
 class HomeFrame(ctk.CTkFrame):
@@ -82,7 +82,7 @@ class HomeFrame(ctk.CTkFrame):
         for widget in self.list_frame.winfo_children():
             widget.destroy()
 
-        items = get_all_items(self.user_id) 
+        items = get_all_items(self.user_id)
 
         if not items:
             ctk.CTkLabel(
@@ -91,14 +91,30 @@ class HomeFrame(ctk.CTkFrame):
             return
 
         for i, (item_id, name, location, category, notes) in enumerate(items):
-            row = ctk.CTkFrame(self.list_frame, corner_radius=10)
-            row.grid(row=i, column=0, sticky="ew", pady=4, padx=4)
+            row = ctk.CTkFrame(self.list_frame, fg_color="transparent")
+            row.grid(row=i * 2, column=0, sticky="ew", padx=8, pady=(8, 0))
             row.grid_columnconfigure(0, weight=1)
 
             ctk.CTkLabel(
                 row, text=name, font=ctk.CTkFont(size=14, weight="bold")
-            ).grid(row=0, column=0, sticky="w", padx=12, pady=(8, 0))
+            ).grid(row=0, column=0, sticky="w")
 
             ctk.CTkLabel(
-                row, text=f"📍 {location}", text_color="gray"
-            ).grid(row=1, column=0, sticky="w", padx=12, pady=(0, 8))
+                row, text=f"📍 {location}", text_color="gray", font=ctk.CTkFont(size=12)
+            ).grid(row=1, column=0, sticky="w")
+
+            ctk.CTkButton(
+                row, text="Delete", width=32, height=32, corner_radius=16,
+                fg_color="#e74c3c", hover_color="#c0392b",
+                font=ctk.CTkFont(size=13),
+                command=lambda i=item_id: self.handle_delete(i),
+            ).grid(row=0, column=1, rowspan=2, sticky="e")
+
+            # thin divider line under each item (skip after the last one)
+            if i < len(items) - 1:
+                divider = ctk.CTkFrame(self.list_frame, height=1, fg_color="gray30")
+                divider.grid(row=i * 2 + 1, column=0, sticky="ew", padx=8, pady=8)
+
+    def handle_delete(self, item_id: int):
+        delete_item(item_id, self.user_id)
+        self.refresh_items()
