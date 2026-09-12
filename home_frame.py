@@ -104,15 +104,21 @@ class HomeFrame(ctk.CTkFrame):
             ).grid(row=1, column=0, sticky="w")
 
             ctk.CTkButton(
-                row, text="Delete", width=32, height=32, corner_radius=16,
+                row, text="🗑", width=26, height=26, corner_radius=13,
                 fg_color="#e74c3c", hover_color="#c0392b",
-                font=ctk.CTkFont(size=13),
+                font=ctk.CTkFont(size=12),
+                border_spacing=0,
                 command=lambda i=item_id: self.handle_delete(i),
             ).grid(row=0, column=1, rowspan=2, sticky="e")
 
-            # thin divider line under each item (skip after the last one)
             if i < len(items) - 1:
-                divider = ctk.CTkFrame(self.list_frame, height=1, fg_color="gray30")
+                divider = ctk.CTkFrame(
+                    self.list_frame,
+                    height=2,
+                    corner_radius=0,
+                    border_width=0,
+                    fg_color="gray30",
+                )
                 divider.grid(row=i * 2 + 1, column=0, sticky="ew", padx=8, pady=8)
 
     def handle_delete(self, item_id: int):
