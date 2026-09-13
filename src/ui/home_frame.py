@@ -4,7 +4,7 @@ home_frame.py
 
 import customtkinter as ctk
 from add_item_modal import AddItemModal
-from database import get_all_items, delete_item
+from database import get_all_items, delete_item, edit_item
 
 
 class HomeFrame(ctk.CTkFrame):
@@ -15,7 +15,6 @@ class HomeFrame(ctk.CTkFrame):
         self.grid_rowconfigure(2, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        # --- Top bar: greeting + logout ---
         top_bar = ctk.CTkFrame(self, fg_color="transparent")
         top_bar.grid(row=0, column=0, sticky="ew", padx=24, pady=(24, 8))
         top_bar.grid_columnconfigure(0, weight=1)
@@ -111,6 +110,15 @@ class HomeFrame(ctk.CTkFrame):
                 command=lambda i=item_id: self.handle_delete(i),
             ).grid(row=0, column=1, rowspan=2, sticky="e")
 
+            ctk.CTkButton(
+                row, text="✏", width=26, height=26, corner_radius=13,
+                fg_color="#e7e43c", hover_color="#c0b12b",
+                font=ctk.CTkFont(size=12),
+                text_color="#000",
+                border_spacing=0,
+                command=lambda i=item_id: self.handle_edit(i),
+            ).grid(row=0, column=2, rowspan=2, sticky="e")
+
             if i < len(items) - 1:
                 divider = ctk.CTkFrame(
                     self.list_frame,
@@ -123,4 +131,8 @@ class HomeFrame(ctk.CTkFrame):
 
     def handle_delete(self, item_id: int):
         delete_item(item_id, self.user_id)
+        self.refresh_items()
+
+    def handle_edit(self, item_id: int):
+        edit_item(item_id, self.user_id)
         self.refresh_items()
