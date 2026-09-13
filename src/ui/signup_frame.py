@@ -4,8 +4,8 @@ The signup screen.
 """
 
 import customtkinter as ctk
-from database import create_account
-from email_utils import send_verification_email
+from src.database import create_account
+from src.utils import send_verification_email
 
 
 class SignUpFrame(ctk.CTkFrame):

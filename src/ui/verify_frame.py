@@ -4,7 +4,7 @@ Screen where the user enters the code emailed to them.
 """
 
 import customtkinter as ctk
-from database import verify_code
+from src.database import verify_code
 
 
 class VerifyFrame(ctk.CTkFrame):

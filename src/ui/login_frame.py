@@ -4,7 +4,7 @@ The login screen. Calls app.show_home() on successful login.
 """
 
 import customtkinter as ctk
-from database import verify_user
+from src.database import verify_user
 
 
 class LoginFrame(ctk.CTkFrame):

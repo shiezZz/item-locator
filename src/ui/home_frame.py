@@ -3,8 +3,8 @@ home_frame.py
 """
 
 import customtkinter as ctk
-from add_item_modal import AddItemModal
-from database import get_all_items, delete_item, edit_item
+from src.modal import AddItemModal
+from src.database import get_all_items, delete_item, edit_item
 
 
 class HomeFrame(ctk.CTkFrame):

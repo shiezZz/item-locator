@@ -4,11 +4,8 @@ Entry point. Run this file to start the app: python main.py
 """
 
 import customtkinter as ctk
-from database import init_db
-from login_frame import LoginFrame
-from home_frame import HomeFrame
-from signup_frame import SignUpFrame
-from verify_frame import VerifyFrame
+from src.database import init_db
+from src.ui import LoginFrame, HomeFrame, SignUpFrame, VerifyFrame
 
 ctk.set_appearance_mode("dark")       # "dark", "light", or "system"
 ctk.set_default_color_theme("blue")   # "blue", "green", "dark-blue"

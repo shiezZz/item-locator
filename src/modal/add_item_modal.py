@@ -3,7 +3,7 @@ add_item_modal.py
 '''
 
 import customtkinter as ctk
-from database import add_item
+from src.database import add_item
 
 class AddItemModal(ctk.CTkToplevel):
     def __init__(self, master, user_id, on_success = None):

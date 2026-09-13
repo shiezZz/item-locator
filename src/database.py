@@ -4,7 +4,7 @@ import sqlite3
 import hashlib
 import os
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "item_locator.db")
+DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "item_locator.db")
 
 
 def get_connection():
@@ -149,3 +149,5 @@ def delete_item(item_id: int, user_id: int) -> bool:
     conn.close()
     return True
 
+def edit_item():
+    return
