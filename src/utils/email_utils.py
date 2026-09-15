@@ -5,10 +5,14 @@ Sends verification codes via Gmail SMTP.
 
 import smtplib
 import ssl
+import os
 from email.mime.text import MIMEText
+from dotenv import load_dotenv
 
-SENDER_EMAIL = "klawrence.tolentino@gmail.com"
-APP_PASSWORD = "vscc evpe uuec ksdh" 
+load_dotenv()
+
+SENDER_EMAIL = os.environ.get("GMAIL_SENDER")
+APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD") 
 
 
 def send_verification_email(to_email: str, code: str):
