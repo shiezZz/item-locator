@@ -1,0 +1,6 @@
+# .gitignore
+.env
+item_locator.db
+__pycache__/
+*.pyc
+venv/
