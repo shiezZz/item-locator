@@ -10,7 +10,8 @@ class EditItemModal(ctk.CTkToplevel):
         super().__init__(master)
         self.user_id = user_id
         self.on_success = on_success
-        self.item_details = get_item(item_id=item_id, user_id=self.user_id)
+        self.item_id = item_id
+        name, location, category, notes = get_item(item_id=self.item_id, user_id=self.user_id)
         r = 0
 
         self.title("Edit Item")
@@ -25,19 +26,23 @@ class EditItemModal(ctk.CTkToplevel):
         ctk.CTkLabel(self, text="EDIT ITEM", font=ctk.CTkFont(size=18, weight="bold")).grid(row=r,column=0, pady=(24, 16))
         r+=1
 
-        self.name_entry = ctk.CTkEntry(self, placeholder_text=self.item_details[0], width=280, height=40, )
+        self.name_entry = ctk.CTkEntry(self, width=280, height=40, )
+        self.name_entry.insert(0, name)
         self.name_entry.grid(row=r, column=0, pady=8)
         r+=1
 
-        self.location_entry = ctk.CTkEntry(self, placeholder_text=self.item_details[1], width=280, height=40)
+        self.location_entry = ctk.CTkEntry(self, width=280, height=40)
+        self.location_entry.insert(0, location)
         self.location_entry.grid(row=r, column=0,pady=8)
         r+=1
 
-        self.category_entry = ctk.CTkEntry(self, placeholder_text=self.item_details[2], width=280, height=40)
+        self.category_entry = ctk.CTkEntry(self, width=280, height=40)
+        self.category_entry.insert(0, category)
         self.category_entry.grid(row=r, column=0,pady=8)
         r+=1
 
-        self.notes_entry = ctk.CTkEntry(self, placeholder_text=self.item_details[3], width=280, height=40)
+        self.notes_entry = ctk.CTkEntry(self, width=280, height=40)
+        self.notes_entry.insert(0, notes)
         self.notes_entry.grid(row=r, column=0,pady=8)
         r+=1
 
@@ -63,7 +68,7 @@ class EditItemModal(ctk.CTkToplevel):
             self.error_label.configure(text="Name and location are required.")
             return
 
-        edit_item()
+        edit_item(user_id=self.user_id, item_id=self.item_id, name=name, location=location, category=category, notes=notes)
 
         if self.on_success:
             self.on_success()
@@ -75,6 +80,3 @@ class EditItemModal(ctk.CTkToplevel):
         x = master.winfo_x() + (master.winfo_width() // 2) - 180
         y = master.winfo_y() + (master.winfo_height() // 2) - 210
         self.geometry(f"+{x}+{y}")
-
-    def get_item(self):
-        get_item(item_id= self.item_id)

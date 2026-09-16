@@ -160,5 +160,19 @@ def get_item(item_id: int, user_id:int):
     conn.close()
     return row
 
-def edit_item():
-    return
+def edit_item(user_id: int, item_id: int, name:str, location: str, category: str, notes: str) -> bool:
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        """ UPDATE items 
+            SET name = ?,
+            location = ?,
+            category = ?,
+            notes = ?
+            WHERE id = ? AND user_id = ?
+        """, 
+        (name, location, category, notes, item_id, user_id)
+        )
+    conn.commit()
+    conn.close()
+    return True
