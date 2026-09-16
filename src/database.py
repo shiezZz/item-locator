@@ -149,5 +149,16 @@ def delete_item(item_id: int, user_id: int) -> bool:
     conn.close()
     return True
 
+def get_item(item_id: int, user_id:int):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT name, location, category, notes from items WHERE id = ? AND user_id = ?",
+        (item_id, user_id)
+    )
+    row = cur.fetchone()
+    conn.close()
+    return row
+
 def edit_item():
     return

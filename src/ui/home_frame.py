@@ -3,7 +3,7 @@ home_frame.py
 """
 
 import customtkinter as ctk
-from src.modal import AddItemModal
+from src.modal import AddItemModal, EditItemModal
 from src.database import get_all_items, delete_item, edit_item
 
 
@@ -134,5 +134,4 @@ class HomeFrame(ctk.CTkFrame):
         self.refresh_items()
 
     def handle_edit(self, item_id: int):
-        edit_item(item_id, self.user_id)
-        self.refresh_items()
+        EditItemModal(self.app, user_id=self.user_id, item_id=item_id, on_success=self.refresh_items)
