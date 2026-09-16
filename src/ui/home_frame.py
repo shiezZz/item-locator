@@ -47,6 +47,7 @@ class HomeFrame(ctk.CTkFrame):
             corner_radius=10,
         )
         self.search_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
+        self.search_entry.bind("<KeyRelease>", lambda e: self.refresh_items())
 
         ctk.CTkButton(
             search_bar,
@@ -56,7 +57,7 @@ class HomeFrame(ctk.CTkFrame):
             command=self.add_item_placeholder,
         ).grid(row=0, column=1)
 
-        # --- Scrollable item list area (placeholder) ---
+
         self.list_frame = ctk.CTkScrollableFrame(
             self, corner_radius=12, label_text="Your Items"
         )
@@ -81,11 +82,23 @@ class HomeFrame(ctk.CTkFrame):
         for widget in self.list_frame.winfo_children():
             widget.destroy()
 
-        items = get_all_items(self.user_id)
+        all_items = get_all_items(self.user_id)
+        query = self.search_entry.get().strip().lower()
+
+        if query:
+            items = [item for item in all_items if query in item[1].lower()]
+        else:
+            items = all_items
+
+        if not all_items:
+            ctk.CTkLabel(
+                self.list_frame, text="No items yet.", text_color="gray"
+            ).grid(row=0, column=0, pady=20)
+            return
 
         if not items:
             ctk.CTkLabel(
-                self.list_frame, text="No items yet.", text_color="gray"
+                self.list_frame, text="No items found.", text_color="gray"
             ).grid(row=0, column=0, pady=20)
             return
 
