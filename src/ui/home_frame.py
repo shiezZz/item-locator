@@ -3,8 +3,8 @@ home_frame.py
 """
 
 import customtkinter as ctk
-from src.modal import AddItemModal, EditItemModal
-from src.database import get_all_items, delete_item, edit_item
+from src.modal import AddItemModal, EditItemModal, DelConfirmModal
+from src.database import get_all_items
 
 
 class HomeFrame(ctk.CTkFrame):
@@ -121,7 +121,7 @@ class HomeFrame(ctk.CTkFrame):
                 font=ctk.CTkFont(size=12),
                 border_spacing=0,
                 command=lambda i=item_id: self.handle_delete(i),
-            ).grid(row=0, column=1, rowspan=2, sticky="e")
+            ).grid(row=0, column=1, rowspan=2, sticky="e", padx=(0, 6))
 
             ctk.CTkButton(
                 row, text="✏", width=26, height=26, corner_radius=13,
@@ -130,7 +130,7 @@ class HomeFrame(ctk.CTkFrame):
                 text_color="#000",
                 border_spacing=0,
                 command=lambda i=item_id: self.handle_edit(i),
-            ).grid(row=0, column=2, rowspan=2, sticky="e")
+            ).grid(row=0, column=2, rowspan=2, sticky="e", padx=(0, 12))
 
             if i < len(items) - 1:
                 divider = ctk.CTkFrame(
@@ -143,8 +143,12 @@ class HomeFrame(ctk.CTkFrame):
                 divider.grid(row=i * 2 + 1, column=0, sticky="ew", padx=8, pady=8)
 
     def handle_delete(self, item_id: int):
-        delete_item(item_id, self.user_id)
-        self.refresh_items()
+        DelConfirmModal(
+            self.app,
+            item_id=item_id,
+            user_id=self.user_id,
+            on_confirm=self.refresh_items,
+        )
 
     def handle_edit(self, item_id: int):
         EditItemModal(self.app, user_id=self.user_id, item_id=item_id, on_success=self.refresh_items)
