@@ -5,6 +5,7 @@ home_frame.py
 import customtkinter as ctk
 from src.modal import AddItemModal, EditItemModal, DelConfirmModal
 from src.database import get_all_items
+from src.utils import format_relative_time
 
 
 class HomeFrame(ctk.CTkFrame):
@@ -102,7 +103,7 @@ class HomeFrame(ctk.CTkFrame):
             ).grid(row=0, column=0, pady=20)
             return
 
-        for i, (item_id, name, location, category, notes) in enumerate(items):
+        for i, (item_id, name, location, category, notes, date_updated) in enumerate(items):
             row = ctk.CTkFrame(self.list_frame, fg_color="transparent")
             row.grid(row=i * 2, column=0, sticky="ew", padx=8, pady=(8, 0))
             row.grid_columnconfigure(0, weight=1)
@@ -114,6 +115,10 @@ class HomeFrame(ctk.CTkFrame):
             ctk.CTkLabel(
                 row, text=f"📍 {location}", text_color="gray", font=ctk.CTkFont(size=12)
             ).grid(row=1, column=0, sticky="w")
+
+            ctk.CTkLabel(
+                row, text=f"Updated: {format_relative_time(date_updated)}", text_color="gray40", font=ctk.CTkFont(size=10)
+            ).grid(row=2, column=0, sticky="w")
 
             ctk.CTkButton(
                 row, text="🗑", width=26, height=26, corner_radius=13,

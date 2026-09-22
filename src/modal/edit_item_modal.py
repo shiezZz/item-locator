@@ -11,7 +11,7 @@ class EditItemModal(ctk.CTkToplevel):
         self.user_id = user_id
         self.on_success = on_success
         self.item_id = item_id
-        name, location, category, notes = get_item(item_id=self.item_id, user_id=self.user_id)
+        name, location, category, notes, date_updated = get_item(item_id=self.item_id, user_id=self.user_id)
         r = 0
 
         self.title("Edit Item")

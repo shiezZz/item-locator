@@ -44,6 +44,7 @@ def init_db():
             category TEXT,
             notes TEXT,
             date_added TEXT DEFAULT CURRENT_TIMESTAMP,
+            date_updated TEXT DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
     """)
@@ -130,7 +131,7 @@ def get_all_items(user_id: int):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute(
-        "SELECT id, name, location, category, notes from items WHERE user_id = ? ORDER BY name",
+        "SELECT id, name, location, category, notes, date_updated from items WHERE user_id = ? ORDER BY name",
         (user_id,)
     )
 
@@ -153,7 +154,7 @@ def get_item(item_id: int, user_id:int):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute(
-        "SELECT name, location, category, notes from items WHERE id = ? AND user_id = ?",
+        "SELECT name, location, category, notes, date_updated from items WHERE id = ? AND user_id = ?",
         (item_id, user_id)
     )
     row = cur.fetchone()
@@ -168,7 +169,8 @@ def edit_item(user_id: int, item_id: int, name:str, location: str, category: str
             SET name = ?,
             location = ?,
             category = ?,
-            notes = ?
+            notes = ?,
+            date_updated = CURRENT_TIMESTAMP
             WHERE id = ? AND user_id = ?
         """, 
         (name, location, category, notes, item_id, user_id)
@@ -176,3 +178,22 @@ def edit_item(user_id: int, item_id: int, name:str, location: str, category: str
     conn.commit()
     conn.close()
     return True
+
+def migrate_add_date_updated():
+    """One-time migration: adds date_updated column to existing items table
+    without losing existing data. Safe to run multiple times."""
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("PRAGMA table_info(items)")
+    columns = [row[1] for row in cur.fetchall()]
+
+    if "date_updated" not in columns:
+        cur.execute("ALTER TABLE items ADD COLUMN date_updated TEXT")
+        cur.execute("UPDATE items SET date_updated = date_added WHERE date_updated IS NULL")
+        conn.commit()
+        print("Migration applied: date_updated column added.")
+    else:
+        print("Migration skipped: date_updated already exists.")
+
+    conn.close()
