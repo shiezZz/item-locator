@@ -26,4 +26,4 @@ def format_relative_time(timestamp_str: str) -> str:
         days = int(seconds // 86400)
         return f"{days} day{'s' if days != 1 else ''} ago"
     else:
-        return dt.strftime("%b %d, %Y")  
+        return dt_ph.strftime("%b %d, %Y")  
