@@ -5,6 +5,8 @@ import hashlib
 import os
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "item_locator.db")
+IMAGES_DIR = os.path.join(os.path.dirname(__file__), "item_images")
+os.makedirs(IMAGES_DIR, exist_ok=True)
 
 
 def get_connection():
@@ -45,6 +47,7 @@ def init_db():
             notes TEXT,
             date_added TEXT DEFAULT CURRENT_TIMESTAMP,
             date_updated TEXT DEFAULT CURRENT_TIMESTAMP,
+            image_path TEXT,
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
     """)
@@ -154,46 +157,34 @@ def get_item(item_id: int, user_id:int):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute(
-        "SELECT name, location, category, notes, date_updated from items WHERE id = ? AND user_id = ?",
+        "SELECT name, location, category, notes, date_updated, image_path from items WHERE id = ? AND user_id = ?",
         (item_id, user_id)
     )
     row = cur.fetchone()
     conn.close()
     return row
 
-def edit_item(user_id: int, item_id: int, name:str, location: str, category: str, notes: str) -> bool:
+def edit_item(user_id: int, item_id: int, name: str, location: str, category: str, notes: str, image_path: str = None) -> bool:
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute(
-        """ UPDATE items 
-            SET name = ?,
-            location = ?,
-            category = ?,
-            notes = ?,
-            date_updated = CURRENT_TIMESTAMP
-            WHERE id = ? AND user_id = ?
-        """, 
-        (name, location, category, notes, item_id, user_id)
+    if image_path is not None:
+        cur.execute(
+            """ UPDATE items
+                SET name = ?, location = ?, category = ?, notes = ?,
+                    image_path = ?, date_updated = CURRENT_TIMESTAMP
+                WHERE id = ? AND user_id = ?
+            """,
+            (name, location, category, notes, image_path, item_id, user_id)
+        )
+    else:
+        cur.execute(
+            """ UPDATE items
+                SET name = ?, location = ?, category = ?, notes = ?,
+                    date_updated = CURRENT_TIMESTAMP
+                WHERE id = ? AND user_id = ?
+            """,
+            (name, location, category, notes, item_id, user_id)
         )
     conn.commit()
     conn.close()
     return True
-
-def migrate_add_date_updated():
-    """One-time migration: adds date_updated column to existing items table
-    without losing existing data. Safe to run multiple times."""
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute("PRAGMA table_info(items)")
-    columns = [row[1] for row in cur.fetchall()]
-
-    if "date_updated" not in columns:
-        cur.execute("ALTER TABLE items ADD COLUMN date_updated TEXT")
-        cur.execute("UPDATE items SET date_updated = date_added WHERE date_updated IS NULL")
-        conn.commit()
-        print("Migration applied: date_updated column added.")
-    else:
-        print("Migration skipped: date_updated already exists.")
-
-    conn.close()
