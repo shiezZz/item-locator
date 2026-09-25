@@ -9,9 +9,6 @@ import shutil
 import os
 
 
-
-
-
 class EditItemModal(ctk.CTkToplevel):
     def __init__(self, master, user_id, item_id, on_success=None):
         super().__init__(master)
@@ -22,18 +19,8 @@ class EditItemModal(ctk.CTkToplevel):
         name, location, category, notes, date_updated, image_path = get_item(item_id=self.item_id, user_id=self.user_id)
         r = 0
 
-        self.image_label = ctk.CTkLabel(self, text="No image selected", text_color="gray")
-        self.image_label.grid(row=r, column=0, pady=4)
-        r+=1
-
-        ctk.CTkButton(
-            self, text="Choose Image", width=280, height=36,
-            command=self.choose_image,
-        ).grid(row=r, column=0, pady=(0, 8))
-        r+=1
-
         self.title("Edit Item")
-        self.geometry("360x450")
+        self.geometry("360x520")
         self.resizable(False, False)
 
         self.transient(master)
@@ -42,6 +29,16 @@ class EditItemModal(ctk.CTkToplevel):
         self.grid_columnconfigure(0, weight=1)
 
         ctk.CTkLabel(self, text="EDIT ITEM", font=ctk.CTkFont(size=18, weight="bold")).grid(row=r,column=0, pady=(24, 16))
+        r+=1
+
+        self.image_label = ctk.CTkLabel(self, text="No image selected", text_color="gray")
+        self.image_label.grid(row=r, column=0, pady=4)
+        r+=1
+        
+        ctk.CTkButton(
+            self, text="Choose Image", width=280, height=36,
+            command=self.choose_image,
+        ).grid(row=r, column=0, pady=(0, 8))
         r+=1
 
         self.name_entry = ctk.CTkEntry(self, width=280, height=40, )
@@ -77,16 +74,31 @@ class EditItemModal(ctk.CTkToplevel):
         self.after(10, lambda: self._center_over(master))   
 
     def handle_save(self):
-        name= self.name_entry.get().strip()
-        location= self.location_entry.get().strip()
-        category= self.category_entry.get().strip()
-        notes= self.notes_entry.get().strip()
+        name = self.name_entry.get().strip()
+        location = self.location_entry.get().strip()
+        category = self.category_entry.get().strip()
+        notes = self.notes_entry.get().strip()
 
         if not name or not location:
             self.error_label.configure(text="Name and location are required.")
             return
 
-        edit_item(user_id=self.user_id, item_id=self.item_id, name=name, location=location, category=category, notes=notes)
+        new_image_filename = None
+        if self.selected_image_path:
+            ext = os.path.splitext(self.selected_image_path)[1]
+            new_image_filename = f"{name}_{os.urandom(4).hex()}{ext}"
+            dest_path = os.path.join(IMAGES_DIR, new_image_filename)
+            shutil.copy(self.selected_image_path, dest_path)
+
+        edit_item(
+            user_id=self.user_id,
+            item_id=self.item_id,
+            name=name,
+            location=location,
+            category=category,
+            notes=notes,
+            image_path=new_image_filename,
+        )
 
         if self.on_success:
             self.on_success()

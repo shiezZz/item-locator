@@ -4,9 +4,10 @@ home_frame.py
 
 import customtkinter as ctk
 from src.modal import AddItemModal, EditItemModal, DelConfirmModal
-from src.database import get_all_items
+from src.database import get_all_items, IMAGES_DIR
 from src.utils import format_relative_time
-
+from PIL import Image
+import os
 
 class HomeFrame(ctk.CTkFrame):
     def __init__(self, master, app):
@@ -103,18 +104,25 @@ class HomeFrame(ctk.CTkFrame):
             ).grid(row=0, column=0, pady=20)
             return
 
-        for i, (item_id, name, location, category, notes, date_updated) in enumerate(items):
+        for i, (item_id, name, location, category, notes, date_updated, image_path) in enumerate(items):
             row = ctk.CTkFrame(self.list_frame, fg_color="transparent")
             row.grid(row=i * 2, column=0, sticky="ew", padx=8, pady=(8, 0))
-            row.grid_columnconfigure(0, weight=1)
+            row.grid_columnconfigure(1, weight=1)
+
+            if image_path:
+                full_path = os.path.join(IMAGES_DIR, image_path)
+                if os.path.exists(full_path):
+                    pil_img = Image.open(full_path)
+                    ctk_img = ctk.CTkImage(light_image=pil_img, dark_image=pil_img, size=(40, 40))
+                    ctk.CTkLabel(row, image=ctk_img, text="").grid(row=0, column=0, rowspan=2, padx=(0, 8))
 
             ctk.CTkLabel(
                 row, text=name, font=ctk.CTkFont(size=14, weight="bold")
-            ).grid(row=0, column=0, sticky="w")
+            ).grid(row=0, column=1, sticky="w")
 
             ctk.CTkLabel(
                 row, text=f"📍 {location}", text_color="gray", font=ctk.CTkFont(size=12)
-            ).grid(row=1, column=0, sticky="w")
+            ).grid(row=1, column=1, sticky="w")
 
             ctk.CTkLabel(
                 row, text=f"Updated: {format_relative_time(date_updated)}", text_color="gray40", font=ctk.CTkFont(size=10)
@@ -126,7 +134,7 @@ class HomeFrame(ctk.CTkFrame):
                 font=ctk.CTkFont(size=12),
                 border_spacing=0,
                 command=lambda i=item_id: self.handle_delete(i),
-            ).grid(row=0, column=1, rowspan=2, sticky="e", padx=(0, 6))
+            ).grid(row=0, column=2, rowspan=2, sticky="e", padx=(0, 6))
 
             ctk.CTkButton(
                 row, text="✏", width=26, height=26, corner_radius=13,
@@ -135,7 +143,7 @@ class HomeFrame(ctk.CTkFrame):
                 text_color="#000",
                 border_spacing=0,
                 command=lambda i=item_id: self.handle_edit(i),
-            ).grid(row=0, column=2, rowspan=2, sticky="e", padx=(0, 12))
+            ).grid(row=0, column=3, rowspan=2, sticky="e", padx=(0, 12))
 
             if i < len(items) - 1:
                 divider = ctk.CTkFrame(

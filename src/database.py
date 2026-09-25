@@ -134,7 +134,7 @@ def get_all_items(user_id: int):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute(
-        "SELECT id, name, location, category, notes, date_updated from items WHERE user_id = ? ORDER BY name",
+        "SELECT id, name, location, category, notes, date_updated, image_path from items WHERE user_id = ? ORDER BY name",
         (user_id,)
     )
 
