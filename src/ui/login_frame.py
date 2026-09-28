@@ -5,7 +5,12 @@ The login screen. Calls app.show_home() on successful login.
 
 import customtkinter as ctk
 from src.database import verify_user
+import time
 
+MAX_ATTEMPTS = 5
+LOCKOUT_SECONDS = 10 * 60
+
+_login_state = {"attempts": 0, "locked_until": 0}
 
 class LoginFrame(ctk.CTkFrame):
     def __init__(self, master, app):
@@ -72,6 +77,16 @@ class LoginFrame(ctk.CTkFrame):
         link_label.bind("<Button-1>", lambda e: self.after(10, self.app.show_signup))
 
     def handle_login(self):
+        now = time.time()
+
+        if now < _login_state["locked_until"]:
+            remaining = int(_login_state["locked_until"] - now)
+            mins, secs = divmod(remaining,60)
+            self.error_label.configure(
+                text=f"Too many attempts. Try again in {mins}, {secs}s."
+            )
+            return
+        
         username = self.username_entry.get().strip()
         password = self.password_entry.get().strip()
 
@@ -80,10 +95,21 @@ class LoginFrame(ctk.CTkFrame):
             return
 
         result, user_id = verify_user(username, password)
+
         if result == "ok":
             self.error_label.configure(text="")
             self.app.show_home(username, user_id)
         elif result == "unverified":
             self.error_label.configure(text="Please verify your email first.")
         else:
-            self.error_label.configure(text="Invalid username or password.")
+            _login_state["attempts"] += 1
+
+            if _login_state["attempts"] >= MAX_ATTEMPTS:
+                _login_state["locked_until"] = time.time() + LOCKOUT_SECONDS
+                _login_state["attempts"] = 0
+                self.error_label.configure(
+                    text="Too many failed attempts. Locked out for 10 minutes."
+                )
+            else:
+                left = MAX_ATTEMPTS - _login_state["attempts"]
+                self.error_label.configure(text="Invalid username or password.")

@@ -4,7 +4,8 @@ Screen where the user enters the code emailed to them.
 """
 
 import customtkinter as ctk
-from src.database import verify_code
+from src.database import verify_code, resend_code
+from src.utils import send_verification_email
 
 
 class VerifyFrame(ctk.CTkFrame):
@@ -45,9 +46,35 @@ class VerifyFrame(ctk.CTkFrame):
             command=self.handle_verify,
         ).grid(row=4, column=0, pady=(16, 8))
 
+        resend_link = ctk.CTkLabel(
+            card, text="Resend code", text_color="#3b8ed0", cursor="hand2",
+            font=ctk.CTkFont(size=12, underline=True),
+        )
+        resend_link.grid(row=5, column=0, pady=(4, 0))
+        resend_link.bind("<Button-1>", lambda e: self.handle_resend())
+
+    def _show(self, message: str, ok: bool = False):
+        self.error_label.configure(
+            text=message, text_color="#2ecc71" if ok else "#e74c3c"
+        )
+
     def handle_verify(self):
         code = self.code_entry.get().strip()
-        if verify_code(self.username, code):
+        result = verify_code(self.username, code)
+
+        if result == "ok":
             self.after(10, self.app.show_login)
+        elif result == "expired":
+            self._show("This code has expired. Click 'Resend code'.")
         else:
-            self.error_label.configure(text="Invalid code.")
+            self._show("Invalid code.")
+
+    def handle_resend(self):
+        result = resend_code(self.username)
+        if result is None:
+            self._show("Couldn't resend the code.")
+            return
+
+        email, code = result
+        send_verification_email(email, code)
+        self._show("A new code was sent to your email.", ok=True)

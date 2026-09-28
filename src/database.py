@@ -3,10 +3,12 @@ import string
 import sqlite3
 import hashlib
 import os
+import time
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "item_locator.db")
 IMAGES_DIR = os.path.join(os.path.dirname(__file__), "item_images")
 os.makedirs(IMAGES_DIR, exist_ok=True)
+CODE_EXPIRY_SECONDS = 15 * 60
 
 
 def get_connection():
@@ -32,7 +34,8 @@ def init_db():
             email TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
             is_verified INTEGER DEFAULT 0,
-            verification_code TEXT
+            verification_code TEXT,
+            code_expires_at REAL
         )
     """)
 
@@ -93,15 +96,16 @@ def create_account(username: str, email: str, password: str):
         return None
 
     code = generate_code()
+    expires_at = time.time() + CODE_EXPIRY_SECONDS
     cur.execute(
-        "INSERT INTO users (username, email, password_hash, is_verified, verification_code) VALUES (?, ?, ?, 0, ?)",
-        (username, email, hash_password(password), code),
+        "INSERT INTO users (username, email, password_hash, is_verified, verification_code, code_expires_at) VALUES (?, ?, ?, 0, ?, ?)",
+        (username, email, hash_password(password), code, expires_at),
     )
     conn.commit()
     conn.close()
     return code
 
-def verify_code(username: str, code: str) -> bool:
+def verify_code(username: str, code: str) -> str:
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT verification_code FROM users WHERE username = ?", (username,))
@@ -109,10 +113,20 @@ def verify_code(username: str, code: str) -> bool:
 
     if row is None or row[0] != code:
         conn.close()
-        return False
+        return "invalid"
+
+    stored_code, expires_at = row
+
+    if expires_at is None or time.time() > expires_at:
+        conn.close()
+        return "expired"
+
+    if stored_code != code: 
+        conn.close()
+        return "invalid"
 
     cur.execute(
-        "UPDATE users SET is_verified = 1, verification_code = NULL WHERE username = ?",
+        "UPDATE users SET is_verified = 1, verification_code = NULL, code_expires_at = NULL WHERE username = ?",
         (username,),
     )
     conn.commit()
@@ -188,3 +202,37 @@ def edit_item(user_id: int, item_id: int, name: str, location: str, category: st
     conn.commit()
     conn.close()
     return True
+
+def resend_code(username: str):
+    """Generates a fresh code + expiry. Returns (email, code), or None if
+    the user doesn't exist or is already verified."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT email, is_verified FROM users WHERE username = ?", (username,))
+    row = cur.fetchone()
+
+    if row is None or row[1] == 1:
+        conn.close()
+        return None
+
+    code = generate_code()
+    cur.execute(
+        "UPDATE users SET verification_code = ?, code_expires_at = ? WHERE username = ?",
+        (code, time.time() + CODE_EXPIRY_SECONDS, username),
+    )
+    conn.commit()
+    conn.close()
+    return row[0], code
+
+def migrate_add_code_expiry():
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("PRAGMA table_info(users)")
+    columns = [row[1] for row in cur.fetchall()]
+
+    if "code_expires_at" not in columns:
+        cur.execute("ALTER TABLE users ADD COLUMN code_expires_at REAL")
+        conn.commit()
+        print("Migration applied: code_expires_at added.")
+
+    conn.close()

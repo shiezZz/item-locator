@@ -4,7 +4,7 @@ Entry point. Run this file to start the app: python main.py
 """
 
 import customtkinter as ctk
-from src.database import init_db
+from src.database import init_db, migrate_add_code_expiry
 from src.ui import LoginFrame, HomeFrame, SignUpFrame, VerifyFrame
 
 ctk.set_appearance_mode("dark")       # "dark", "light", or "system"
@@ -52,5 +52,6 @@ class App(ctk.CTk):
 
 if __name__ == "__main__":
     init_db()
+    migrate_add_code_expiry()
     app = App()
     app.mainloop()
