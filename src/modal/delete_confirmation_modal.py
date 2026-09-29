@@ -3,7 +3,7 @@ delete_confirmation_modal.py
 '''
 
 import customtkinter as ctk
-from src.database import delete_item
+from src.db import delete_item
 
 class DelConfirmModal(ctk.CTkToplevel):
     def __init__(self, master, item_id, user_id, on_confirm=None):

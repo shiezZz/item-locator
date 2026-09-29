@@ -4,7 +4,7 @@ edit_item_modal.py
 
 import customtkinter as ctk
 from tkinter import filedialog
-from src.database import edit_item, get_item, IMAGES_DIR
+from src.db import edit_item, get_item, IMAGES_DIR
 import shutil
 import os
 

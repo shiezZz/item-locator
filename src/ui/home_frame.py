@@ -4,7 +4,8 @@ home_frame.py
 
 import customtkinter as ctk
 from src.modal import AddItemModal, EditItemModal, DelConfirmModal
-from src.database import get_all_items, IMAGES_DIR
+from src.db import get_all_items
+from src.config import IMAGES_DIR
 from src.utils import format_relative_time
 from PIL import Image
 import os

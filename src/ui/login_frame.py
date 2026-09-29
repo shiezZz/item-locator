@@ -4,11 +4,9 @@ The login screen. Calls app.show_home() on successful login.
 """
 
 import customtkinter as ctk
-from src.database import verify_user
+from src.db import verify_user
 import time
-
-MAX_ATTEMPTS = 5
-LOCKOUT_SECONDS = 10 * 60
+from src.config import MAX_LOGIN_ATTEMPTS, LOCKOUT_SECONDS
 
 _login_state = {"attempts": 0, "locked_until": 0}
 
@@ -104,12 +102,12 @@ class LoginFrame(ctk.CTkFrame):
         else:
             _login_state["attempts"] += 1
 
-            if _login_state["attempts"] >= MAX_ATTEMPTS:
+            if _login_state["attempts"] >= MAX_LOGIN_ATTEMPTS:
                 _login_state["locked_until"] = time.time() + LOCKOUT_SECONDS
                 _login_state["attempts"] = 0
                 self.error_label.configure(
                     text="Too many failed attempts. Locked out for 10 minutes."
                 )
             else:
-                left = MAX_ATTEMPTS - _login_state["attempts"]
+                left = MAX_LOGIN_ATTEMPTS - _login_state["attempts"]
                 self.error_label.configure(text="Invalid username or password.")

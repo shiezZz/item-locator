@@ -4,7 +4,7 @@ Screen where the user enters the code emailed to them.
 """
 
 import customtkinter as ctk
-from src.database import verify_code, resend_code
+from src.db import verify_code, resend_code
 from src.utils import send_verification_email
 
 

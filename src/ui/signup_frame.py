@@ -4,7 +4,7 @@ The signup screen.
 """
 
 import customtkinter as ctk
-from src.database import create_account
+from src.db import create_account
 from src.utils import send_verification_email
 
 
