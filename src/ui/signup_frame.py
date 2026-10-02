@@ -72,14 +72,15 @@ class SignUpFrame(ctk.CTkFrame):
         )
         self.error_label.grid(row=7, column=0, pady=(2, 0))
 
-        ctk.CTkButton(
+        self.signup_button = ctk.CTkButton(
             card,
             text="Create an Account",
             width=260,
             height=40,
             corner_radius=10,
             command=self.handle_signup,
-        ).grid(row=8, column=0, pady=(14, 6))
+        )
+        self.signup_button.grid(row=8, column=0, pady=(14, 6))
 
         link_label = ctk.CTkLabel(
             card,
@@ -93,6 +94,8 @@ class SignUpFrame(ctk.CTkFrame):
         link_label.bind("<Button-1>", lambda e: self.after(10, self.app.show_login))
 
     def handle_signup(self):
+        self.signup_button.configure(state="disabled", text="Creating account...")
+
         username = self.username_sign.get().strip()
         email = self.email_sign.get().strip()
         password = self.password_sign.get().strip()

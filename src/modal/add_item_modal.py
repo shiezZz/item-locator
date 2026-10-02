@@ -46,13 +46,16 @@ class AddItemModal(ctk.CTkToplevel):
         self.error_label.grid(row=r, column=0, pady=(4, 0))
         r+=1
 
-        ctk.CTkButton(self, text="Save Item", width=280, height=40, command=self.handle_save).grid(row=r,column=0,pady=(16,8))
+        self.save_button = ctk.CTkButton(self, text="Save Item", width=280, height=40, command=self.handle_save)
+        self.save_button.grid(row=r,column=0,pady=(16,8))
         r+=1
         ctk.CTkButton(self, text="Cancel", width=280, height=40, command=self.destroy, fg_color="#e74c3c", border_width=1,text_color=("gray10", "gray90"), hover_color="#85261b").grid(row=r, column=0, pady=(0,16))
 
         self.after(10, lambda: self._center_over(master))
 
     def handle_save(self):
+        self.save_button.configure(state="disabled", text="Saving...")
+
         name= self.name_entry.get().strip()
         location= self.location_entry.get().strip()
         category= self.category_entry.get().strip()
@@ -60,6 +63,7 @@ class AddItemModal(ctk.CTkToplevel):
 
         if not name or not location:
             self.error_label.configure(text="Name and location are required.")
+            self.save_button.configure(state="normal", text="Save Item")
             return
 
         add_item(self.user_id, name, location, category, notes)
