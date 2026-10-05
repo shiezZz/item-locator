@@ -1,0 +1,3 @@
+[submodule "item-locator-server"]
+	path = item-locator-server
+	url = https://github.com/shiezZz/item-locator-server.git
